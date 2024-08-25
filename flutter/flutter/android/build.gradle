@@ -1,5 +1,66 @@
+// Проверка, установлен ли Maven
+def checkMavenInstallation() {
+    try {
+        def process = "mvn -version".execute()
+        process.waitFor()
+        if (process.exitValue() != 0) {
+            throw new Exception("Maven is not installed.")
+        }
+        println "Maven is installed. Version info:"
+        println process.text
+    } catch (Exception e) {
+        println "Maven is not installed or not found in PATH."
+        println "Please install Maven using one of the following commands:"
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            println "  brew install maven"
+        } else if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            println "Download and install Maven from https://maven.apache.org/download.cgi"
+        } else if (System.getProperty("os.name").toLowerCase().contains("nux") ||
+                   System.getProperty("os.name").toLowerCase().contains("nix")) {
+            println "  sudo apt-get install maven"
+        } else {
+            println "Please install Maven manually."
+        }
+        throw new GradleException("Maven is required but not installed.")
+    }
+}
+
+// Вызов проверки перед сборкой
+checkMavenInstallation()
+
+
+// Установка AAR файла в локальный Maven-репозиторий
+def installAarToLocalMaven(String aarFilePath, String groupId, String artifactId, String version) {
+    checkMavenInstallation()
+
+    try {
+        // Команда для установки AAR файла в локальный Maven-репозиторий
+        def command = "mvn install:install-file -Dfile=${aarFilePath} -DgroupId=${groupId} -DartifactId=${artifactId} -Dversion=${version} -Dpackaging=aar -DgeneratePom=true"
+        def process = command.execute()
+        process.waitFor()
+        
+        if (process.exitValue() != 0) {
+            throw new Exception("Failed to install AAR file to local Maven repository.")
+        }
+        
+        println "Successfully installed ${aarFilePath} to local Maven repository."
+    } catch (Exception e) {
+        println "Error during Maven install: ${e.message}"
+        throw new GradleException("Failed to install AAR file to local Maven repository.")
+    }
+}
+
+def aarFilePath = new File(project.projectDir, '../../../prebuilt/bundle-android-aar/ffmpeg-kit/ffmpeg-kit.aar').absolutePath
+
+println('AAR file path: ' + aarFilePath + '\n')
+
+
+// Пример использования функции
+installAarToLocalMaven(aarFilePath, 'com.arthenica.ffmpegkit', 'ffmpeg-kit', '1.0.0')
+
 buildscript {
     repositories {
+        mavenLocal() 
         google()
         mavenCentral()
     }
@@ -11,6 +72,7 @@ buildscript {
 
 rootProject.allprojects {
     repositories {
+        mavenLocal() 
         google()
         mavenCentral()
     }
@@ -49,5 +111,5 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:1.5.0'
-    implementation 'com.arthenica:ffmpeg-kit-https:6.0-2'
+    implementation 'com.arthenica.ffmpegkit:ffmpeg-kit:1.0.0'
 }

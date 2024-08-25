@@ -487,6 +487,8 @@ fi
   --enable-protocol=file \
   ${CONFIGURE_POSTFIX} 1>>"${BASEDIR}"/build.log 2>&1
 
+
+
 if [[ $? -ne 0 ]]; then
   echo -e "failed\n\nSee build.log for details\n"
   exit 1
