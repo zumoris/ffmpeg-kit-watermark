@@ -471,6 +471,20 @@ fi
   --disable-nvenc \
   --disable-vaapi \
   --disable-vdpau \
+  --disable-everything \
+  --enable-gpl \
+  --enable-libx264 \
+  --enable-avcodec \
+  --enable-avformat \
+  --enable-avfilter \
+  --enable-swscale \
+  --enable-filter=overlay \
+  --enable-filter=scale \
+  --enable-decoder=png --enable-encoder=png --enable-demuxer=image2 --enable-muxer=image2 \
+  --enable-decoder=hevc --enable-decoder=h264 --enable-encoder=libx264 \
+  --enable-decoder=aac --enable-encoder=aac \
+  --enable-muxer=mp4 --enable-demuxer=mov \
+  --enable-protocol=file \
   ${CONFIGURE_POSTFIX} 1>>"${BASEDIR}"/build.log 2>&1
 
 if [[ $? -ne 0 ]]; then
